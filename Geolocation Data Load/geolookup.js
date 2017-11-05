@@ -11615,16 +11615,42 @@ var JSONData = [
     }
 ];
 
-    for(var data in JSONData){
-        lookupURL = formattedURL(JSONData[data].PickStreet);
-        request(lookupURL).then((body)=>{
-            console.log(JSON.parse(body).results[0])
-            JSONData[data].location = {};
-            JSONData[data].location=JSON.parse(body).results[0].geometry.location;
-            newJsonData.push(JSONData[data]);
-            fs.writeFileSync('./my.json', JSON.stringify(newJsonData)); 
-            setTimeout(function() {
-                
-            }, 200);
-        });
+    // for(var data in JSONData){
+    //     setTimeout(function() {
+    //         originAddress = returnAddressObj(JSONData[data].PickStreet)
+    //         lookupURL = formattedURL(originAddress);
+    //         request(lookupURL).then((body)=>{
+    //             JSONData[data].location = {};
+    //             if(JSON.parse(body).results[0]){
+    //                 JSONData[data].location=JSON.parse(body).results[0].geometry.location;
+    //                 newJsonData.push(JSONData[data]);
+    //                 fs.writeFileSync('./my.json', JSON.stringify(newJsonData)); 
+    //             }else{
+    //                 newJsonData.push(JSONData[data]);
+    //                 fs.writeFileSync('./my.json', JSON.stringify(newJsonData)); 
+    //             }
+    //         });
+    //     }, 200);
+    // }
+    var counter = 0;
+    function init(){
+        console.log(counter)
+        if(counter<JSONData.length){
+            originAddress = returnAddressObj(JSONData[counter].PickStreet)
+            lookupURL = formattedURL(originAddress);
+            request(lookupURL).then((body)=>{
+                JSONData[counter].location = {};
+                if(JSON.parse(body).results[0]){
+                    JSONData[counter].location=JSON.parse(body).results[0].geometry.location;
+                    newJsonData.push(JSONData[counter]);
+                    fs.writeFileSync('./my.json', JSON.stringify(newJsonData)); 
+                }else{
+                    newJsonData.push(JSONData[counter]);
+                    fs.writeFileSync('./my.json', JSON.stringify(newJsonData)); 
+                }
+                counter++;
+                init();
+            });
+        }
     }
+init();
